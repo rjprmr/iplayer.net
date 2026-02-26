@@ -1,0 +1,14 @@
+/Users/parmar/Source/iplayer.net/src/GetIPlayer.Core/bin/Debug/net10.0/GetIPlayer.Core.deps.json
+/Users/parmar/Source/iplayer.net/src/GetIPlayer.Core/bin/Debug/net10.0/GetIPlayer.Core.dll
+/Users/parmar/Source/iplayer.net/src/GetIPlayer.Core/bin/Debug/net10.0/GetIPlayer.Core.pdb
+/Users/parmar/Source/iplayer.net/src/GetIPlayer.Core/bin/Debug/net10.0/GetIPlayer.Core.xml
+/Users/parmar/Source/iplayer.net/src/GetIPlayer.Core/obj/Debug/net10.0/GetIPlayer.Core.GeneratedMSBuildEditorConfig.editorconfig
+/Users/parmar/Source/iplayer.net/src/GetIPlayer.Core/obj/Debug/net10.0/GetIPlayer.Core.AssemblyInfoInputs.cache
+/Users/parmar/Source/iplayer.net/src/GetIPlayer.Core/obj/Debug/net10.0/GetIPlayer.Core.AssemblyInfo.cs
+/Users/parmar/Source/iplayer.net/src/GetIPlayer.Core/obj/Debug/net10.0/GetIPlayer.Core.csproj.CoreCompileInputs.cache
+/Users/parmar/Source/iplayer.net/src/GetIPlayer.Core/obj/Debug/net10.0/GetIPlayer.Core.sourcelink.json
+/Users/parmar/Source/iplayer.net/src/GetIPlayer.Core/obj/Debug/net10.0/GetIPlayer.Core.dll
+/Users/parmar/Source/iplayer.net/src/GetIPlayer.Core/obj/Debug/net10.0/refint/GetIPlayer.Core.dll
+/Users/parmar/Source/iplayer.net/src/GetIPlayer.Core/obj/Debug/net10.0/GetIPlayer.Core.xml
+/Users/parmar/Source/iplayer.net/src/GetIPlayer.Core/obj/Debug/net10.0/GetIPlayer.Core.pdb
+/Users/parmar/Source/iplayer.net/src/GetIPlayer.Core/obj/Debug/net10.0/ref/GetIPlayer.Core.dll

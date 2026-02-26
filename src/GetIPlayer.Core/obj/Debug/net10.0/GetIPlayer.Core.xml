@@ -1,0 +1,992 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>GetIPlayer.Core</name>
+    </assembly>
+    <members>
+        <member name="T:GetIPlayer.Core.Configuration.AppSettings">
+            <summary>
+            Root configuration for the GetIPlayer application.
+            </summary>
+        </member>
+        <member name="F:GetIPlayer.Core.Configuration.AppSettings.SectionName">
+            <summary>Configuration section name in appsettings.json.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.AppSettings.ProfileDir">
+            <summary>Profile directory path (stores cache, history, PVR, options).</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.AppSettings.DefaultTypes">
+            <summary>Default programme types to search.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.AppSettings.MaxRetries">
+            <summary>Maximum number of retry attempts for HTTP requests.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.AppSettings.CheckForUpdates">
+            <summary>Whether to check for new releases at startup.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.AppSettings.Download">
+            <summary>Download options.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.AppSettings.Proxy">
+            <summary>Proxy settings.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.AppSettings.Output">
+            <summary>Output file options.</summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Configuration.DownloadOptions">
+            <summary>
+            Download-specific configuration options.
+            </summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.DownloadOptions.TvQuality">
+            <summary>TV quality preferences in priority order.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.DownloadOptions.RadioQuality">
+            <summary>Radio quality preferences in priority order.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.DownloadOptions.Subtitles">
+            <summary>Whether to download subtitles by default.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.DownloadOptions.Thumbnail">
+            <summary>Whether to download the programme thumbnail.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.DownloadOptions.Tag">
+            <summary>Whether to tag the downloaded file with metadata.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.DownloadOptions.Overwrite">
+            <summary>Whether to overwrite existing files.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.DownloadOptions.Force">
+            <summary>Whether to force re-download even if in history.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.DownloadOptions.MaxConcurrentSegments">
+            <summary>Maximum concurrent segment downloads.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.DownloadOptions.Versions">
+            <summary>Programme versions to attempt, in order (e.g. "original", "signed").</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.DownloadOptions.FfmpegPath">
+            <summary>Path to ffmpeg binary.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.DownloadOptions.AtomicParsleyPath">
+            <summary>Path to AtomicParsley binary.</summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Configuration.OutputOptions">
+            <summary>
+            Output file naming and directory configuration.
+            </summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.OutputOptions.OutputDir">
+            <summary>
+            Default output directory for downloads.
+            </summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.OutputOptions.FilePrefix">
+            <summary>
+            File prefix format template. Supports placeholders like {name}, {episode}, {pid}, {channel}.
+            </summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.OutputOptions.SubDir">
+            <summary>
+            Subdirectory format template. Supports the same placeholders as FilePrefix.
+            </summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.OutputOptions.AddVersionToFilename">
+            <summary>
+            Whether to add version name to filename when not "original".
+            </summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.OutputOptions.MaxFilenameLength">
+            <summary>
+            Maximum filename length (excluding extension).
+            </summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Configuration.ProxySettings">
+            <summary>
+            HTTP proxy configuration.
+            </summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.ProxySettings.Url">
+            <summary>
+            Proxy URL (e.g. "http://proxy:8080"). 
+            Credentials should be stored separately, not in the URL.
+            </summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.ProxySettings.Disabled">
+            <summary>Whether to disable proxy usage entirely.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Configuration.ProxySettings.PartialProxy">
+            <summary>
+            Whether to use partial proxying (proxy only for content that requires it).
+            </summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Enums.DownloadStatus">
+            <summary>
+            Status of a download operation.
+            </summary>
+        </member>
+        <member name="F:GetIPlayer.Core.Enums.DownloadStatus.Success">
+            <summary>Download completed successfully.</summary>
+        </member>
+        <member name="F:GetIPlayer.Core.Enums.DownloadStatus.Failed">
+            <summary>Download failed due to an error.</summary>
+        </member>
+        <member name="F:GetIPlayer.Core.Enums.DownloadStatus.Skipped">
+            <summary>Download was skipped (already in history or filtered out).</summary>
+        </member>
+        <member name="F:GetIPlayer.Core.Enums.DownloadStatus.Unavailable">
+            <summary>Programme is not available (expired or geo-blocked).</summary>
+        </member>
+        <member name="F:GetIPlayer.Core.Enums.DownloadStatus.InProgress">
+            <summary>Download is currently in progress.</summary>
+        </member>
+        <member name="F:GetIPlayer.Core.Enums.DownloadStatus.Cancelled">
+            <summary>Download was cancelled by the user.</summary>
+        </member>
+        <member name="F:GetIPlayer.Core.Enums.DownloadStatus.Queued">
+            <summary>Download is queued for later.</summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Enums.ProgrammeType">
+            <summary>
+            The type of BBC programme.
+            </summary>
+        </member>
+        <member name="F:GetIPlayer.Core.Enums.ProgrammeType.Tv">
+            <summary>Television programme from BBC iPlayer.</summary>
+        </member>
+        <member name="F:GetIPlayer.Core.Enums.ProgrammeType.Radio">
+            <summary>Radio programme from BBC Sounds.</summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Enums.QualityLevel">
+            <summary>
+            Quality level for stream selection.
+            </summary>
+        </member>
+        <member name="F:GetIPlayer.Core.Enums.QualityLevel.Hd">
+            <summary>High definition (1280x720 or higher).</summary>
+        </member>
+        <member name="F:GetIPlayer.Core.Enums.QualityLevel.Sd">
+            <summary>Standard definition (704x396 @ 50fps typically).</summary>
+        </member>
+        <member name="F:GetIPlayer.Core.Enums.QualityLevel.Web">
+            <summary>Web quality (lower bitrate).</summary>
+        </member>
+        <member name="F:GetIPlayer.Core.Enums.QualityLevel.Mobile">
+            <summary>Mobile quality (lowest bitrate).</summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Enums.StreamProtocol">
+            <summary>
+            Streaming protocol used for content delivery.
+            </summary>
+        </member>
+        <member name="F:GetIPlayer.Core.Enums.StreamProtocol.Hls">
+            <summary>HTTP Live Streaming (Apple HLS / M3U8).</summary>
+        </member>
+        <member name="F:GetIPlayer.Core.Enums.StreamProtocol.Dash">
+            <summary>MPEG Dynamic Adaptive Streaming over HTTP.</summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Exceptions.DownloadFailedException">
+            <summary>
+            Thrown when a download operation fails.
+            </summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Exceptions.GeoBlockedException">
+            <summary>
+            Thrown when a programme is geo-blocked and not available in the user's region.
+            </summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Exceptions.GetIPlayerException">
+            <summary>
+            Base exception for all GetIPlayer application errors.
+            </summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Exceptions.ProgrammeNotFoundException">
+            <summary>
+            Thrown when a programme cannot be found by PID or search.
+            </summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Exceptions.StreamUnavailableException">
+            <summary>
+            Thrown when no streams are available for a programme (e.g. all versions expired).
+            </summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Exceptions.ValidationException">
+            <summary>
+            Thrown when input validation fails (e.g. invalid PID format, unsafe paths).
+            </summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Exceptions.ValidationException.FieldName">
+            <summary>The name of the field or parameter that failed validation.</summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Interfaces.ICacheService">
+            <summary>
+            Manages the programme index cache (local copy of BBC schedule data).
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.ICacheService.GetAllAsync(GetIPlayer.Core.Enums.ProgrammeType,System.Threading.CancellationToken)">
+            <summary>
+            Get all cached programmes of a given type.
+            </summary>
+            <param name="type">Programme type.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>All cached programmes.</returns>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.ICacheService.RefreshAsync(GetIPlayer.Core.Enums.ProgrammeType,System.Threading.CancellationToken)">
+            <summary>
+            Refresh the cache from BBC APIs.
+            </summary>
+            <param name="type">Programme type to refresh.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.ICacheService.IsStaleAsync(GetIPlayer.Core.Enums.ProgrammeType)">
+            <summary>
+            Check if the cache is stale and needs refreshing.
+            </summary>
+            <param name="type">Programme type.</param>
+            <returns>True if cache needs refresh.</returns>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.ICacheService.GetByIndexAsync(System.Int32,GetIPlayer.Core.Enums.ProgrammeType,System.Threading.CancellationToken)">
+            <summary>
+            Get a programme by its cache index number.
+            </summary>
+            <param name="index">Cache index.</param>
+            <param name="type">Programme type.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Programme at the given index, or null.</returns>
+        </member>
+        <member name="T:GetIPlayer.Core.Interfaces.IDashDownloader">
+            <summary>
+            Downloads MPEG-DASH content.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IDashDownloader.DownloadAsync(GetIPlayer.Core.Models.StreamInfo,System.String,System.IProgress{GetIPlayer.Core.Models.DownloadProgress},System.Threading.CancellationToken)">
+            <summary>
+            Download a DASH stream to a file.
+            </summary>
+            <param name="stream">Stream info with the MPD manifest URL.</param>
+            <param name="outputPath">Output file path for the raw segments.</param>
+            <param name="progress">Progress reporter.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Total bytes downloaded.</returns>
+        </member>
+        <member name="T:GetIPlayer.Core.Interfaces.IDownloadService">
+            <summary>
+            Orchestrates the complete download workflow for a programme.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IDownloadService.DownloadAsync(System.String,System.IProgress{GetIPlayer.Core.Models.DownloadProgress},System.Threading.CancellationToken)">
+            <summary>
+            Download a programme by PID.
+            </summary>
+            <param name="pid">BBC programme identifier.</param>
+            <param name="progress">Progress reporter for UI feedback.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Download result.</returns>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IDownloadService.DownloadByIndexAsync(System.Int32,System.IProgress{GetIPlayer.Core.Models.DownloadProgress},System.Threading.CancellationToken)">
+            <summary>
+            Download a programme by index number from cache.
+            </summary>
+            <param name="index">Cache index number.</param>
+            <param name="progress">Progress reporter for UI feedback.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Download result.</returns>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IDownloadService.DownloadByUrlAsync(System.String,System.IProgress{GetIPlayer.Core.Models.DownloadProgress},System.Threading.CancellationToken)">
+            <summary>
+            Download a programme from a BBC iPlayer/Sounds URL.
+            </summary>
+            <param name="url">BBC programme URL.</param>
+            <param name="progress">Progress reporter for UI feedback.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Download result.</returns>
+        </member>
+        <member name="T:GetIPlayer.Core.Interfaces.IExternalProcessRunner">
+            <summary>
+            Safely executes external processes (ffmpeg, AtomicParsley) without shell injection.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IExternalProcessRunner.RunAsync(System.String,System.Collections.Generic.IReadOnlyList{System.String},System.String,System.Threading.CancellationToken)">
+            <summary>
+            Run an external process and capture its output.
+            </summary>
+            <param name="executablePath">Absolute path to the executable.</param>
+            <param name="arguments">Arguments as separate strings (never shell-concatenated).</param>
+            <param name="workingDirectory">Working directory for the process.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A tuple of (exitCode, standardOutput, standardError).</returns>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IExternalProcessRunner.RunWithOutputAsync(System.String,System.Collections.Generic.IReadOnlyList{System.String},System.Action{System.String},System.String,System.Threading.CancellationToken)">
+            <summary>
+            Run an external process and stream output line-by-line.
+            </summary>
+            <param name="executablePath">Absolute path to the executable.</param>
+            <param name="arguments">Arguments as separate strings.</param>
+            <param name="outputHandler">Handler called for each line of output.</param>
+            <param name="workingDirectory">Working directory for the process.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Exit code of the process.</returns>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IExternalProcessRunner.FindExecutable(System.String)">
+            <summary>
+            Check if an executable exists and is accessible.
+            </summary>
+            <param name="executablePath">Path or name of the executable.</param>
+            <returns>The resolved absolute path, or null if not found.</returns>
+        </member>
+        <member name="T:GetIPlayer.Core.Interfaces.ProcessResult">
+            <summary>
+            Result of an external process execution.
+            </summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Interfaces.ProcessResult.ExitCode">
+            <summary>Process exit code.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Interfaces.ProcessResult.StandardOutput">
+            <summary>Standard output content.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Interfaces.ProcessResult.StandardError">
+            <summary>Standard error content.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Interfaces.ProcessResult.Success">
+            <summary>Whether the process completed successfully (exit code 0).</summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Interfaces.IFileSystem">
+            <summary>
+            Abstraction for file system operations with built-in path safety validation (OWASP A01).
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IFileSystem.ReadAllTextAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Read all text from a file.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IFileSystem.WriteAllTextAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Write text to a file, creating directories as needed.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IFileSystem.AppendAllTextAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Append text to a file.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IFileSystem.FileExists(System.String)">
+            <summary>
+            Check if a file exists.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IFileSystem.DirectoryExists(System.String)">
+            <summary>
+            Check if a directory exists.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IFileSystem.CreateDirectory(System.String)">
+            <summary>
+            Create a directory and all parent directories.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IFileSystem.DeleteFile(System.String)">
+            <summary>
+            Delete a file if it exists.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IFileSystem.MoveFile(System.String,System.String,System.Boolean)">
+            <summary>
+            Move/rename a file.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IFileSystem.GetFileSize(System.String)">
+            <summary>
+            Get the size of a file in bytes.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IFileSystem.GetFiles(System.String,System.String)">
+            <summary>
+            Get all files in a directory matching an optional search pattern.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IFileSystem.OpenRead(System.String)">
+            <summary>
+            Open a file for reading.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IFileSystem.OpenWrite(System.String)">
+            <summary>
+            Open a file for writing (creates or overwrites).
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IFileSystem.SafeCombinePath(System.String,System.String)">
+            <summary>
+            Safely combine and validate a path to prevent directory traversal attacks.
+            Returns the resolved absolute path.
+            </summary>
+            <param name="basePath">The allowed base directory.</param>
+            <param name="relativePath">The relative path to combine.</param>
+            <returns>Resolved, validated absolute path.</returns>
+            <exception cref="T:GetIPlayer.Core.Exceptions.ValidationException">If the path escapes the base directory.</exception>
+        </member>
+        <member name="T:GetIPlayer.Core.Interfaces.IHistoryService">
+            <summary>
+            Manages the download history.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IHistoryService.AddAsync(GetIPlayer.Core.Models.HistoryRecord,System.Threading.CancellationToken)">
+            <summary>
+            Add a record to the download history.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IHistoryService.ExistsAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Check if a programme PID has already been downloaded.
+            </summary>
+            <param name="pid">Programme PID.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>True if the PID is in the download history.</returns>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IHistoryService.GetAllAsync(System.Threading.CancellationToken)">
+            <summary>
+            Get all history records.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IHistoryService.GetByPidAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Get a specific history record by PID.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IHistoryService.ClearAsync(System.Threading.CancellationToken)">
+            <summary>
+            Clear the download history.
+            </summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Interfaces.IHlsDownloader">
+            <summary>
+            Downloads HLS (HTTP Live Streaming) content.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IHlsDownloader.DownloadAsync(GetIPlayer.Core.Models.StreamInfo,System.String,System.IProgress{GetIPlayer.Core.Models.DownloadProgress},System.Threading.CancellationToken)">
+            <summary>
+            Download an HLS stream to a file.
+            </summary>
+            <param name="stream">Stream info with the M3U8 playlist URL.</param>
+            <param name="outputPath">Output file path for the raw MPEG-TS data.</param>
+            <param name="progress">Progress reporter.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Total bytes downloaded.</returns>
+        </member>
+        <member name="T:GetIPlayer.Core.Interfaces.IHttpClientService">
+            <summary>
+            HTTP client abstraction for making web requests with retry and proxy support.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IHttpClientService.GetStringAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Send a GET request with retry logic.
+            </summary>
+            <param name="url">URL to fetch.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Response body as string.</returns>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IHttpClientService.GetBytesAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Send a GET request and return the raw bytes.
+            </summary>
+            <param name="url">URL to fetch.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Response body as byte array.</returns>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IHttpClientService.DownloadToFileAsync(System.String,System.String,System.IProgress{System.Int64},System.Threading.CancellationToken)">
+            <summary>
+            Send a GET request and stream the response to a file.
+            </summary>
+            <param name="url">URL to fetch.</param>
+            <param name="outputPath">File path to write the response to.</param>
+            <param name="progress">Optional progress callback.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Total bytes downloaded.</returns>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IHttpClientService.GetStreamAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Send a GET request and return the response stream.
+            </summary>
+            <param name="url">URL to fetch.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Response stream.</returns>
+        </member>
+        <member name="T:GetIPlayer.Core.Interfaces.IPostProcessor">
+            <summary>
+            Post-processes downloaded media (remux, tag, convert subtitles).
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IPostProcessor.RemuxAsync(System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Remux a raw transport stream into an MP4 container using ffmpeg.
+            </summary>
+            <param name="inputPath">Path to the raw TS file.</param>
+            <param name="outputPath">Path for the output MP4/M4A file.</param>
+            <param name="subtitlePath">Optional path to SRT subtitle file to embed.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IPostProcessor.MergeAudioVideoAsync(System.String,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Merge separate audio and video files into a single MP4.
+            </summary>
+            <param name="videoPath">Path to the video file.</param>
+            <param name="audioPath">Path to the audio file.</param>
+            <param name="outputPath">Path for the merged output file.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IPostProcessor.TagAsync(System.String,GetIPlayer.Core.Models.TagMetadata,System.Threading.CancellationToken)">
+            <summary>
+            Tag a media file with metadata.
+            </summary>
+            <param name="filePath">Path to the media file.</param>
+            <param name="metadata">Metadata to write.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="T:GetIPlayer.Core.Interfaces.IProgrammeService">
+            <summary>
+            Service for searching and retrieving programme metadata from BBC APIs.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IProgrammeService.SearchAsync(System.String,GetIPlayer.Core.Enums.ProgrammeType[],System.String,System.Threading.CancellationToken)">
+            <summary>
+            Search for programmes matching a regex pattern.
+            </summary>
+            <param name="searchTerm">Regex pattern to match against programme names.</param>
+            <param name="types">Programme types to search.</param>
+            <param name="channelFilter">Optional regex filter for channel name.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Search results.</returns>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IProgrammeService.GetByPidAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Get full programme metadata by PID.
+            </summary>
+            <param name="pid">BBC programme identifier.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Programme with full metadata, or null if not found.</returns>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IProgrammeService.GetChannelsAsync(GetIPlayer.Core.Enums.ProgrammeType,System.Threading.CancellationToken)">
+            <summary>
+            Get available channels for a programme type.
+            </summary>
+            <param name="type">Programme type (TV or Radio).</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>List of available channels.</returns>
+        </member>
+        <member name="T:GetIPlayer.Core.Interfaces.IPvrService">
+            <summary>
+            Manages PVR (Personal Video Recorder) saved searches.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IPvrService.RunAsync(System.IProgress{GetIPlayer.Core.Models.DownloadProgress},System.Threading.CancellationToken)">
+            <summary>
+            Run all enabled PVR searches and download matching programmes.
+            </summary>
+            <param name="progress">Progress reporter.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Download results for all matched programmes.</returns>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IPvrService.AddAsync(GetIPlayer.Core.Models.PvrSearch,System.Threading.CancellationToken)">
+            <summary>
+            Add a new PVR saved search.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IPvrService.DeleteAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Delete a PVR saved search by name.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IPvrService.GetAllAsync(System.Threading.CancellationToken)">
+            <summary>
+            Get all PVR saved searches.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IPvrService.GetByNameAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Get a PVR saved search by name.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IPvrService.SetEnabledAsync(System.String,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Enable or disable a PVR search.
+            </summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Interfaces.IStreamService">
+            <summary>
+            Discovers and resolves available streams for a programme.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IStreamService.GetStreamsAsync(System.String,GetIPlayer.Core.Enums.QualityLevel[],System.String[],System.Threading.CancellationToken)">
+            <summary>
+            Get available streams for a programme, ordered by quality preference.
+            </summary>
+            <param name="pid">BBC programme identifier.</param>
+            <param name="qualityPreferences">Quality levels in priority order.</param>
+            <param name="versions">Version names to try (e.g. "original", "signed").</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Ordered list of available streams.</returns>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.IStreamService.GetVersionsAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Get version PIDs for a programme.
+            </summary>
+            <param name="pid">BBC programme identifier.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Available versions.</returns>
+        </member>
+        <member name="T:GetIPlayer.Core.Interfaces.ISubtitleService">
+            <summary>
+            Downloads and converts subtitles.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.ISubtitleService.DownloadAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Download subtitles for a programme and convert to SRT.
+            </summary>
+            <param name="pid">BBC programme identifier.</param>
+            <param name="outputPath">Path to save the SRT file.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Subtitle data, or null if no subtitles are available.</returns>
+        </member>
+        <member name="M:GetIPlayer.Core.Interfaces.ISubtitleService.ConvertTtmlToSrt(System.String)">
+            <summary>
+            Convert TTML subtitle content to SRT format.
+            </summary>
+            <param name="ttmlContent">TTML XML content.</param>
+            <returns>SRT formatted string.</returns>
+        </member>
+        <member name="T:GetIPlayer.Core.Models.ChannelInfo">
+            <summary>
+            Represents a BBC channel.
+            </summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.ChannelInfo.Id">
+            <summary>Channel identifier used in BBC URLs.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.ChannelInfo.Name">
+            <summary>Display name (e.g. "BBC One", "Radio 4").</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.ChannelInfo.Type">
+            <summary>Whether this is a TV or radio channel.</summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Models.DownloadProgress">
+            <summary>
+            Represents the progress of a download operation.
+            </summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.DownloadProgress.Pid">
+            <summary>PID of the programme being downloaded.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.DownloadProgress.TotalBytes">
+            <summary>Total bytes expected (0 if unknown).</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.DownloadProgress.BytesDownloaded">
+            <summary>Bytes downloaded so far.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.DownloadProgress.PercentComplete">
+            <summary>Download percentage (0-100). Null if total is unknown.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.DownloadProgress.BytesPerSecond">
+            <summary>Current download speed in bytes per second.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.DownloadProgress.EstimatedTimeRemaining">
+            <summary>Estimated time remaining.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.DownloadProgress.Phase">
+            <summary>Current phase of the download.</summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Models.DownloadResult">
+            <summary>
+            Result of a download operation.
+            </summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.DownloadResult.Pid">
+            <summary>PID of the programme that was downloaded.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.DownloadResult.Status">
+            <summary>Status of the download.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.DownloadResult.FilePath">
+            <summary>File path of the downloaded file (if successful).</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.DownloadResult.Mode">
+            <summary>Mode used for the download (e.g. "hvf_hls_hd").</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.DownloadResult.BytesDownloaded">
+            <summary>Total bytes downloaded.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.DownloadResult.ErrorMessage">
+            <summary>Error message if the download failed.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.DownloadResult.Duration">
+            <summary>Duration of the download operation.</summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Models.HistoryRecord">
+            <summary>
+            A record in the download history.
+            </summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.HistoryRecord.Pid">
+            <summary>Programme PID.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.HistoryRecord.Name">
+            <summary>Programme name.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.HistoryRecord.Episode">
+            <summary>Episode title.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.HistoryRecord.Type">
+            <summary>Programme type.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.HistoryRecord.DownloadedAt">
+            <summary>When this programme was downloaded.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.HistoryRecord.Mode">
+            <summary>Download mode used (e.g. "hvf_hls_hd").</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.HistoryRecord.FilePath">
+            <summary>Path to the downloaded file.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.HistoryRecord.FileSize">
+            <summary>File size in bytes.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.HistoryRecord.Channel">
+            <summary>Channel the programme was broadcast on.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.HistoryRecord.Version">
+            <summary>Version downloaded (e.g. "original").</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.HistoryRecord.Duration">
+            <summary>Duration of the programme.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.HistoryRecord.ThumbnailUrl">
+            <summary>Thumbnail URL.</summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Models.Programme">
+            <summary>
+            Represents a BBC iPlayer or BBC Sounds programme.
+            </summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.Programme.Pid">
+            <summary>The unique BBC programme identifier (PID), e.g. "b01rryzz".</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.Programme.Type">
+            <summary>Programme type (TV or Radio).</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.Programme.Name">
+            <summary>Programme series/brand name.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.Programme.Episode">
+            <summary>Episode title.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.Programme.Description">
+            <summary>Full description of the episode.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.Programme.Channel">
+            <summary>Broadcasting channel name (e.g. "BBC One", "Radio 4").</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.Programme.ThumbnailUrl">
+            <summary>URL to the programme's thumbnail image.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.Programme.WebUrl">
+            <summary>URL to the programme on iPlayer/Sounds website.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.Programme.Duration">
+            <summary>Duration of the programme.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.Programme.FirstBroadcast">
+            <summary>When the programme was first broadcast.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.Programme.AvailableFrom">
+            <summary>When the programme becomes available on iPlayer/Sounds.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.Programme.ExpiresAt">
+            <summary>When the programme expires from iPlayer/Sounds.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.Programme.Versions">
+            <summary>Available versions (e.g. "original", "signed", "audiodescribed").</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.Programme.Index">
+            <summary>Numeric index for CLI display.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.Programme.IsComplete">
+            <summary>Whether the programme is complete (all metadata loaded).</summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Models.PvrSearch">
+            <summary>
+            Represents a PVR (Personal Video Recorder) saved search.
+            </summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.PvrSearch.Name">
+            <summary>Unique name for this PVR search.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.PvrSearch.SearchTerm">
+            <summary>Search term (regex pattern).</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.PvrSearch.Type">
+            <summary>Programme type filter.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.PvrSearch.ChannelFilter">
+            <summary>Channel regex filter.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.PvrSearch.QualityPreferences">
+            <summary>Quality preference list in priority order.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.PvrSearch.DownloadSubtitles">
+            <summary>Whether subtitles should be downloaded.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.PvrSearch.IsEnabled">
+            <summary>Whether this PVR search is enabled.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.PvrSearch.OutputDirectory">
+            <summary>Output directory override.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.PvrSearch.CreatedAt">
+            <summary>When this search was created.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.PvrSearch.LastRunAt">
+            <summary>When this search last ran.</summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Models.SearchResult">
+            <summary>
+            Wrapper for paginated search results.
+            </summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.SearchResult.Programmes">
+            <summary>The matching programmes.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.SearchResult.TotalCount">
+            <summary>Total number of matches (before pagination).</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.SearchResult.Page">
+            <summary>Current page (1-based).</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.SearchResult.PageSize">
+            <summary>Page size used.</summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Models.StreamInfo">
+            <summary>
+            Metadata about an available stream for a programme version.
+            </summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.StreamInfo.Mode">
+            <summary>Stream mode identifier (e.g. "hvf_hls_hd", "dash_hd").</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.StreamInfo.Protocol">
+            <summary>Streaming protocol used.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.StreamInfo.Quality">
+            <summary>Quality level of this stream.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.StreamInfo.StreamUrl">
+            <summary>Stream URL (playlist/manifest).</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.StreamInfo.Bitrate">
+            <summary>Bitrate in kbps.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.StreamInfo.Width">
+            <summary>Video width in pixels (0 for audio-only).</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.StreamInfo.Height">
+            <summary>Video height in pixels (0 for audio-only).</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.StreamInfo.FrameRate">
+            <summary>Frame rate (e.g. 25, 50).</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.StreamInfo.MediaType">
+            <summary>Media type (e.g. "video", "audio").</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.StreamInfo.Supplier">
+            <summary>CDN supplier name.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.StreamInfo.IsMuxed">
+            <summary>Whether this is an audio+video combined stream or separate.</summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Models.StreamVersion">
+            <summary>
+            Represents a programme version (e.g. "original", "signed", "audiodescribed").
+            </summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.StreamVersion.VersionPid">
+            <summary>Version PID.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.StreamVersion.Name">
+            <summary>Version name (e.g. "original", "signed", "audiodescribed").</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.StreamVersion.Duration">
+            <summary>Duration of this version.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.StreamVersion.Streams">
+            <summary>Available stream options for this version.</summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Models.SubtitleData">
+            <summary>
+            Subtitle data for a programme.
+            </summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.SubtitleData.Pid">
+            <summary>PID of the programme.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.SubtitleData.SrtContent">
+            <summary>Subtitle content in SRT format.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.SubtitleData.TtmlContent">
+            <summary>Original TTML content (if available).</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.SubtitleData.Language">
+            <summary>Language code (e.g. "en").</summary>
+        </member>
+        <member name="T:GetIPlayer.Core.Models.TagMetadata">
+            <summary>
+            Metadata to be written to an MP4/M4A file by a tagger (e.g. AtomicParsley).
+            </summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.TagMetadata.Title">
+            <summary>Programme/show title.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.TagMetadata.Artist">
+            <summary>Artist or channel name.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.TagMetadata.Album">
+            <summary>Album or series name.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.TagMetadata.Genre">
+            <summary>Genre.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.TagMetadata.Description">
+            <summary>Episode description.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.TagMetadata.LongDescription">
+            <summary>Long description / synopsis.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.TagMetadata.TrackNumber">
+            <summary>Track number within series.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.TagMetadata.TrackTotal">
+            <summary>Total tracks in series.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.TagMetadata.Year">
+            <summary>Year of broadcast.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.TagMetadata.Network">
+            <summary>Network / channel name.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.TagMetadata.ThumbnailPath">
+            <summary>Path to thumbnail image to embed as artwork.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.TagMetadata.Copyright">
+            <summary>Copyright notice.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.TagMetadata.Comment">
+            <summary>Comment field.</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.TagMetadata.IsPodcast">
+            <summary>Whether this is a podcast (for M4A media kind).</summary>
+        </member>
+        <member name="P:GetIPlayer.Core.Models.TagMetadata.Category">
+            <summary>Category for the programme.</summary>
+        </member>
+    </members>
+</doc>

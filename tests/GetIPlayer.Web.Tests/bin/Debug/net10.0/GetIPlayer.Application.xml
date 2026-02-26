@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>GetIPlayer.Application</name>
+    </assembly>
+    <members>
+        <member name="T:GetIPlayer.Application.DownloadOrchestrator">
+            <summary>
+            Orchestrates the complete download workflow for a programme:
+            stream discovery → download segments → post-process → tag → history.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Application.DownloadOrchestrator.DownloadAsync(System.String,System.IProgress{GetIPlayer.Core.Models.DownloadProgress},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:GetIPlayer.Application.DownloadOrchestrator.DownloadByIndexAsync(System.Int32,System.IProgress{GetIPlayer.Core.Models.DownloadProgress},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:GetIPlayer.Application.DownloadOrchestrator.DownloadByUrlAsync(System.String,System.IProgress{GetIPlayer.Core.Models.DownloadProgress},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:GetIPlayer.Application.PvrOrchestrator">
+            <summary>
+            Orchestrates PVR (automated recording) operations.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Application.PvrOrchestrator.RunAllAsync(System.IProgress{GetIPlayer.Core.Models.DownloadProgress},System.Threading.CancellationToken)">
+            <summary>
+            Run all enabled PVR searches and download matches.
+            Refreshes cache before running.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Application.PvrOrchestrator.AddSearchAsync(GetIPlayer.Core.Models.PvrSearch,System.Threading.CancellationToken)">
+            <summary>
+            Add a new PVR saved search.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Application.PvrOrchestrator.DeleteSearchAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Delete a PVR saved search.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Application.PvrOrchestrator.ListSearchesAsync(System.Threading.CancellationToken)">
+            <summary>
+            List all PVR saved searches.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Application.PvrOrchestrator.SetSearchEnabledAsync(System.String,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Enable or disable a PVR search.
+            </summary>
+        </member>
+        <member name="T:GetIPlayer.Application.SearchOrchestrator">
+            <summary>
+            Orchestrates programme search operations across cached and live data.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Application.SearchOrchestrator.SearchAsync(System.String,GetIPlayer.Core.Enums.ProgrammeType[],System.String,System.Threading.CancellationToken)">
+            <summary>
+            Search for programmes, refreshing cache if stale.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Application.SearchOrchestrator.GetInfoAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Get detailed info about a specific programme.
+            </summary>
+        </member>
+        <member name="M:GetIPlayer.Application.SearchOrchestrator.RefreshCacheAsync(GetIPlayer.Core.Enums.ProgrammeType[],System.Threading.CancellationToken)">
+            <summary>
+            Refresh the programme cache for one or more types.
+            </summary>
+        </member>
+    </members>
+</doc>

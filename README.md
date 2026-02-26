@@ -1,5 +1,7 @@
 ## get_iplayer: BBC iPlayer/BBC Sounds Indexing Tool and PVR
 
+A .NET 10 C# rewrite of the original Perl-based [get_iplayer](https://github.com/get-iplayer/get_iplayer) tool.
+
 ## Features
 
 * Downloads TV and radio programmes from BBC iPlayer/BBC Sounds
@@ -10,127 +12,274 @@
 * Regex search on programme description and episode title
 * Filter search results by channel
 * Direct download via programme ID or URL
-* PVR capability (may be used with cron or Task Scheduler)
-* HTTP proxy support
-* Perl 5.16+ required, plus LWP, LWP::Protocol::https, XML::LibXML, Mojolicious, and CGI modules
-* Requires ffmpeg for conversion to MP4 and AtomicParsley for metadata tagging
-* Runs on Linux/BSD (Ubuntu, Fedora, OpenBSD and others), macOS (10.10+), Windows (7/8/10)
+* PVR capability for automated recording of saved searches
+* HLS and DASH streaming protocol support
+* Automatic subtitle download and TTML-to-SRT conversion
+* Post-processing with ffmpeg (remux, audio/video merge, metadata tagging)
+* HTTP/HTTPS/SOCKS5 proxy support
+* Cross-platform: runs on Linux, macOS, and Windows
+
+### Requirements
+
+* [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (10.0 or later)
+* [ffmpeg](https://ffmpeg.org/) for media conversion and tagging
 
 **NOTE:**
 
 - **get_iplayer can only search for programmes that were scheduled for broadcast on BBC linear services within the previous 30 days, even if some are available for more than 30 days on the iPlayer/Sounds sites. Red button programmes, iPlayer box sets, web-only content, and BBC podcasts are not searchable. Programmes that are still available after 30 days must be located on the iPlayer/Sounds sites and downloaded directly via PID or URL.**
 - **get_iplayer does not support downloading news/sport videos, other embedded media, archive programmes, special collections, educational material, programme clips or any content other than whole episodes of programmes scheduled for broadcast on BBC linear services within the previous 30 days. However, it is generally possible to download other content such as red button programmes, iPlayer box sets, or podcasts directly via PID or URL. get_iplayer DOES NOT support live recording from BBC channels.**
 
-## Documentation
+## Project Structure
 
-<https://github.com/get-iplayer/get_iplayer/wiki>
+```
+GetIPlayer.slnx                     # .NET 10 solution (slnx format)
+src/
+  GetIPlayer.Core/                   # Domain models, enums, interfaces, configuration, exceptions
+  GetIPlayer.Infrastructure/         # BBC API services, HTTP, streaming, persistence, post-processing
+  GetIPlayer.Application/            # Orchestrators (download, search, PVR workflows)
+  GetIPlayer.Cli/                    # System.CommandLine CLI application
+  GetIPlayer.Web/                    # ASP.NET Core Razor Pages web interface
+tests/
+  GetIPlayer.Core.Tests/
+  GetIPlayer.Infrastructure.Tests/
+  GetIPlayer.Application.Tests/
+  GetIPlayer.Cli.Tests/
+  GetIPlayer.Web.Tests/
+```
 
-## Installation
+## Building
 
-<https://github.com/get-iplayer/get_iplayer/wiki/installation>
+```sh
+dotnet build GetIPlayer.slnx
+```
+
+## Running
+
+```sh
+dotnet run --project src/GetIPlayer.Cli
+```
+
+Or after publishing:
+
+```sh
+get-iplayer --help
+```
 
 ## Usage
 
-	get_iplayer --help
-	get_iplayer --basic-help
-	get_iplayer --long-help
+```
+get-iplayer <command> [options]
+
+Commands:
+  search   Search for BBC programmes
+  get      Download programmes by PID, index, or URL
+  pvr      Manage PVR (automated recording) saved searches
+  history  View and manage download history
+  info     Show detailed programme information
+  refresh  Refresh the programme cache
+  prefs    View and set application preferences
+
+Global options:
+  --verbose, -v       Enable verbose/debug logging
+  --profile-dir       Override profile directory
+```
 
 ## Examples
 
-* List all TV programmes (`--type=tv` set by default):
+* Search for TV programmes (default type):
 
-	`get_iplayer ".*"`
+    ```sh
+    get-iplayer search "doctor who"
+    ```
 
-	Search output appears in this format:
+    Search output appears in this format:
 
-		...
-		208:  Doctor Who: Series 7 Part 2 - 1. The Bells of Saint John, BBC One, b01rryzz
-		209:  Doctor Who: Series 7 Part 2 - 2. The Rings Of Akhaten, BBC One, b01rx0lj
-		210:  Doctor Who: Series 7 Part 2 - 3. Cold War, BBC One, b01s1cz7
-		...
+    ```
+    208:  Doctor Who: Series 7 Part 2 - 1. The Bells of Saint John
+           [TV] BBC One | b01rryzz | 00:44:00
+    209:  Doctor Who: Series 7 Part 2 - 2. The Rings Of Akhaten
+           [TV] BBC One | b01rx0lj | 00:44:00
+    ```
 
-	Format = `<index>: <name> - <episode>, <channel>, <pid>`
+* Search for radio programmes:
 
-* List all TV programmes with long descriptions:
+    ```sh
+    get-iplayer search "book at bedtime" --type radio
+    ```
 
-	`get_iplayer --long ".*"`
+* Search for both TV and radio programmes:
 
-* List all radio programmes:
+    ```sh
+    get-iplayer search "doctor who" --type tv --type radio
+    ```
 
-	`get_iplayer --type=radio ".*"`
+* Filter by channel:
 
-* List all TV programmes with "doctor who" in the name (matching is case-insensitive):
+    ```sh
+    get-iplayer search ".*" --channel "BBC One"
+    ```
 
-	`get_iplayer "doctor who"`
+* Download a programme by index number (from search results):
 
-* List all TV and radio programmes with "doctor who" in the name:
+    ```sh
+    get-iplayer get 208
+    ```
 
-	`get_iplayer --type tv,radio "doctor who"`
+* Download a programme by PID:
 
-* List all BBC One programmes:
+    ```sh
+    get-iplayer get b01sc0wf
+    ```
 
-	`get_iplayer --channel="BBC One" ".*"`
+* Download a programme by iPlayer URL:
 
-* List Radio 4 and Radio 4 Extra programmes with "Book at Bedtime" in the title:
+    ```sh
+    get-iplayer get https://www.bbc.co.uk/iplayer/episode/b01sc0wf
+    ```
 
-	`get_iplayer --type=radio --channel="Radio 4" "Book at Bedtime"`
+* Download a programme from BBC Sounds by URL:
 
-* List only Radio 4 programmes with "Book at Bedtime" in the title:
+    ```sh
+    get-iplayer get https://www.bbc.co.uk/sounds/play/b07gcv34
+    ```
 
-	`get_iplayer --type=radio --channel="Radio 4$" "Book at Bedtime"`
+* Download multiple programmes:
 
-	*(The `$` regular expression metacharacter matches "Radio 4" only at the end of the channel name, thus avoiding matches against "Radio 4 Extra")*
+    ```sh
+    get-iplayer get 208 209 210
+    ```
 
-* Record TV programme number 208 (index from search results) in HD, with fallback to lower quality if not available:
+* Download with subtitles:
 
-	`get_iplayer --get 208` [default setting]
+    ```sh
+    get-iplayer get b01sc0wf --subtitles
+    ```
 
-	or
-	
-	`get_iplayer --get 208 --tv-quality=hd,sd,web,mobile` [explicit setting]
+* Force re-download (ignore history):
 
-* Record TV programme number 208 in lower resolution only (704x396@50):
+    ```sh
+    get-iplayer get b01sc0wf --force
+    ```
 
-	`get_iplayer --get 208 --tv-quality=web`
+* Show detailed programme info:
 
-* Record TV programme number 208 and download subtitles in SubRip (SRT) format:
+    ```sh
+    get-iplayer info b01sc0wf
+    ```
 
-	`get_iplayer --get 208 --subtitles`
+* Refresh the programme cache:
 
-* Record multiple TV programmes (using index numbers from search results):
+    ```sh
+    get-iplayer refresh
+    get-iplayer refresh --type tv
+    ```
 
-	`get_iplayer --get 208 209 210`
+### PVR (Automated Recording)
 
-* Record a TV programme using its iPlayer URL:
+* Add a PVR search:
 
-	`get_iplayer https://www.bbc.co.uk/iplayer/episode/b01sc0wf/Doctors_Series_15_Perfect/`
+    ```sh
+    get-iplayer pvr add "my-search" "doctor who" --type tv
+    ```
 
-* Record a TV programme using the PID (b01sc0wf) from its iPlayer URL:
+* List saved PVR searches:
 
-	`get_iplayer --pid=b01sc0wf`
+    ```sh
+    get-iplayer pvr list
+    ```
 
-* Record a radio programme using its Sounds URL:
+* Run all PVR searches and download matches:
 
-    `get_iplayer https://www.bbc.co.uk/sounds/play/b07gcv34`
+    ```sh
+    get-iplayer pvr run
+    ```
 
-* Record a radio programme using the PID (b07gcv34) from its Sounds URL in high quality (320k), with fallback to lower quality if not available (default setting):
+* Delete a PVR search:
 
-	`get_iplayer --pid=b07gcv34` [default setting]
+    ```sh
+    get-iplayer pvr delete "my-search"
+    ```
 
-	OR
+### Preferences
 
-	`get_iplayer --pid=b07gcv34 --radio-quality=high,std,med,low` [explicit setting]
+* Show current preferences:
 
-* Record a radio programme using the PID (b07gcv34) from its Sounds URL with lower bit rate only (96k):
+    ```sh
+    get-iplayer prefs show
+    ```
 
-	`get_iplayer --pid=b07gcv34 --radio-quality=med`
+* Set a preference:
 
-* Record multiple radio programmes (using PIDs from Sounds URLs):
+    ```sh
+    get-iplayer prefs set output-dir /path/to/downloads
+    get-iplayer prefs set subtitles true
+    get-iplayer prefs set proxy http://proxy:8080
+    ```
 
-	`get_iplayer --pid=b07gcv34,b07h60ld` [comma-separated list]
+### Download History
 
-	OR
+* View download history:
 
-	`get_iplayer --pid=b07gcv34 --pid=b07h60ld` [multiple arguments]
+    ```sh
+    get-iplayer history list
+    ```
+
+* Check if a programme has been downloaded:
+
+    ```sh
+    get-iplayer history check b01sc0wf
+    ```
+
+* Clear download history:
+
+    ```sh
+    get-iplayer history clear
+    ```
+
+## Configuration
+
+Preferences are stored in `~/.get_iplayer/options.json`. Available settings:
+
+| Key | Description | Default |
+|-----|-------------|---------|
+| `output-dir` | Download output directory | Current directory |
+| `file-prefix` | Filename prefix template | `""` |
+| `subtitles` | Download subtitles | `false` |
+| `thumbnail` | Download thumbnail | `false` |
+| `tag` | Tag files with metadata | `true` |
+| `force` | Force re-download | `false` |
+| `overwrite` | Overwrite existing files | `false` |
+| `proxy` | HTTP proxy URL | `""` |
+| `ffmpeg` | Path to ffmpeg binary | `""` (auto-detect) |
+
+## Running Tests
+
+```sh
+dotnet test GetIPlayer.slnx
+```
+
+## Architecture
+
+The solution follows Clean Architecture principles:
+
+* **Core** — Domain models, enums, interfaces, and exceptions. No external dependencies.
+* **Infrastructure** — Implementations of core interfaces: BBC API clients, HTTP services, HLS/DASH streaming, ffmpeg post-processing, JSON-based persistence.
+* **Application** — Orchestrators that coordinate infrastructure services into high-level workflows (download, search, PVR).
+* **CLI** — Thin command-line interface using [System.CommandLine](https://github.com/dotnet/command-line-api) that delegates to Application orchestrators.
+* **Web** — ASP.NET Core Razor Pages web interface.
+
+Key technical choices:
+
+* Targets **.NET 10** (`net10.0`)
+* Central package management (`Directory.Packages.props`)
+* `TreatWarningsAsErrors`, `AnalysisLevel=latest-recommended`, nullable reference types
+* `LoggerMessage` source generators for high-performance structured logging
+* `GeneratedRegex` for compiled regular expressions
+* Dependency injection via `Microsoft.Extensions.DependencyInjection`
+* Resilient HTTP with `Polly` retry policies
+
+## License
+
+See [LICENSE.txt](LICENSE.txt).
 
 NOTE: Sometimes you may not be able to download a listed programme immediately after broadcast (usually available within 24hrs of airing). Some BBC programmes may not be available from iPlayer/Sounds.
