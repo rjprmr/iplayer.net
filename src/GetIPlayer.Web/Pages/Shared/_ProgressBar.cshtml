@@ -1,0 +1,47 @@
+@model GetIPlayer.Web.Services.DownloadTracker.DownloadProgressInfo
+
+<div class="download-progress" id="download-@Model.DownloadId">
+    <div class="d-flex justify-content-between mb-1">
+        <strong>@Model.Pid</strong>
+        <span class="text-muted small progress-text">@Model.Phase</span>
+    </div>
+    <div class="progress">
+        <div class="progress-bar progress-bar-striped progress-bar-animated"
+             role="progressbar"
+             style="width: @(Model.PercentComplete?.ToString("F0") ?? "0")%"
+             aria-valuenow="@(Model.PercentComplete ?? 0)" aria-valuemin="0" aria-valuemax="100">
+            @(Model.PercentComplete?.ToString("F1") ?? "0")%
+        </div>
+    </div>
+    <div class="d-flex justify-content-between text-muted small mt-1">
+        <span>@FormatBytes(Model.BytesDownloaded) / @FormatBytes(Model.TotalBytes)</span>
+        <span>@FormatSpeed(Model.BytesPerSecond)</span>
+        @if (Model.EstimatedTimeRemaining.HasValue)
+        {
+            <span>ETA: @Model.EstimatedTimeRemaining.Value.ToString(@"mm\:ss")</span>
+        }
+    </div>
+</div>
+
+@functions {
+    private static string FormatBytes(long bytes)
+    {
+        return bytes switch
+        {
+            >= 1073741824 => $"{bytes / 1073741824.0:F2} GB",
+            >= 1048576 => $"{bytes / 1048576.0:F1} MB",
+            >= 1024 => $"{bytes / 1024.0:F0} KB",
+            _ => $"{bytes} B"
+        };
+    }
+
+    private static string FormatSpeed(double bytesPerSecond)
+    {
+        return bytesPerSecond switch
+        {
+            >= 1048576 => $"{bytesPerSecond / 1048576.0:F1} MB/s",
+            >= 1024 => $"{bytesPerSecond / 1024.0:F0} KB/s",
+            _ => $"{bytesPerSecond:F0} B/s"
+        };
+    }
+}

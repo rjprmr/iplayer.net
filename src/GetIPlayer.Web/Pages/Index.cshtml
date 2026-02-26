@@ -1,10 +1,120 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Dashboard";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- Quick Actions -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <a asp-page="/Search" class="quick-action d-block card text-center p-3">
+            <div class="fs-2 mb-1">&#128269;</div>
+            <div class="fw-semibold">Search</div>
+            <div class="text-muted small">Find programmes</div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <a asp-page="/Download" class="quick-action d-block card text-center p-3">
+            <div class="fs-2 mb-1">&#11015;</div>
+            <div class="fw-semibold">Download</div>
+            <div class="text-muted small">@Model.ActiveDownloadCount active</div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <a asp-page="/Pvr/Index" class="quick-action d-block card text-center p-3">
+            <div class="fs-2 mb-1">&#9200;</div>
+            <div class="fw-semibold">PVR</div>
+            <div class="text-muted small">@Model.PvrSearchCount search(es)</div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <a asp-page="/History/Index" class="quick-action d-block card text-center p-3">
+            <div class="fs-2 mb-1">&#128214;</div>
+            <div class="fw-semibold">History</div>
+            <div class="text-muted small">@Model.HistoryCount record(s)</div>
+        </a>
+    </div>
 </div>
+
+<!-- Active Downloads -->
+@if (Model.ActiveDownloads.Count > 0)
+{
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Active Downloads</h6>
+            <a asp-page="/Download" class="btn btn-sm btn-outline-primary">View All</a>
+        </div>
+        <div class="card-body">
+            @foreach (var dl in Model.ActiveDownloads)
+            {
+                <div class="mb-3 download-progress" id="download-@dl.DownloadId">
+                    <div class="d-flex justify-content-between mb-1">
+                        <strong>@dl.Pid</strong>
+                        <span class="text-muted small">@dl.Phase</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated"
+                             role="progressbar"
+                             style="width: @(dl.PercentComplete?.ToString("F0") ?? "0")%">
+                            @(dl.PercentComplete?.ToString("F1") ?? "0")%
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<!-- Recent Downloads -->
+@if (Model.RecentHistory.Count > 0)
+{
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Recent Downloads</h6>
+            <a asp-page="/History/Index" class="btn btn-sm btn-outline-primary">View All</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Episode</th>
+                        <th>Type</th>
+                        <th>Channel</th>
+                        <th>Downloaded</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var record in Model.RecentHistory)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-page="/Programme" asp-route-pid="@record.Pid"
+                                   class="text-decoration-none fw-semibold">@record.Name</a>
+                            </td>
+                            <td class="text-muted">@record.Episode</td>
+                            <td>
+                                <span class="badge @(record.Type == GetIPlayer.Core.Enums.ProgrammeType.Tv ? "badge-tv" : "badge-radio")">
+                                    @record.Type
+                                </span>
+                            </td>
+                            <td>@record.Channel</td>
+                            <td class="text-muted small">
+                                @record.DownloadedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <p class="text-muted mb-3">No downloads yet. Get started by searching for programmes.</p>
+            <a asp-page="/Search" class="btn btn-primary">&#128269; Search Programmes</a>
+        </div>
+    </div>
+}

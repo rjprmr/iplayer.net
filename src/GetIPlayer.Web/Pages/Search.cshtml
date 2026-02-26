@@ -1,0 +1,135 @@
+@page
+@model SearchModel
+@{
+    ViewData["Title"] = "Search";
+}
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @Model.StatusMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-5">
+        <label for="searchTerm" class="form-label">Search Term</label>
+        <input type="text" class="form-control" id="searchTerm" name="searchTerm"
+               value="@Model.SearchTerm" placeholder="Programme name, PID, or keyword..." autofocus />
+    </div>
+    <div class="col-md-2">
+        <label for="typeFilter" class="form-label">Type</label>
+        <select class="form-select" id="typeFilter" name="typeFilter">
+            <option value="">All</option>
+            <option value="tv" selected="@(Model.TypeFilter == "tv" ? "selected" : null)">TV</option>
+            <option value="radio" selected="@(Model.TypeFilter == "radio" ? "selected" : null)">Radio</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="channelFilter" class="form-label">Channel</label>
+        <input type="text" class="form-control" id="channelFilter" name="channelFilter"
+               value="@Model.ChannelFilter" placeholder="e.g. BBC One" />
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">
+            &#128269; Search
+        </button>
+    </div>
+</form>
+
+@if (Model.Results is not null)
+{
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <p class="mb-0 text-muted">
+            Found <strong>@Model.Results.TotalCount</strong> programme(s)
+        </p>
+        <input type="text" id="filterInput" class="form-control form-control-sm" style="width: 200px"
+               placeholder="Filter results..." />
+    </div>
+
+    <form method="post" asp-page-handler="DownloadSelected">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle" id="resultsTable">
+                <thead>
+                    <tr>
+                        <th style="width: 40px">
+                            <input type="checkbox" class="form-check-input" id="selectAll"
+                                   onclick="document.querySelectorAll('input[name=selectedPids]').forEach(cb => cb.checked = this.checked)" />
+                        </th>
+                        <th style="width: 80px"></th>
+                        <th>Name</th>
+                        <th>Episode</th>
+                        <th>Channel</th>
+                        <th style="width: 70px">Type</th>
+                        <th style="width: 90px">Duration</th>
+                        <th style="width: 50px"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var prog in Model.Results.Programmes)
+                    {
+                        <tr>
+                            <td>
+                                <input type="checkbox" class="form-check-input" name="selectedPids" value="@prog.Pid" />
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(prog.ThumbnailUrl))
+                                {
+                                    <img src="@prog.ThumbnailUrl" alt="" class="rounded"
+                                         style="width: 70px; height: 40px; object-fit: cover;" loading="lazy" />
+                                }
+                                else
+                                {
+                                    <div class="bg-secondary rounded d-flex align-items-center justify-content-center text-white"
+                                         style="width: 70px; height: 40px; font-size: 0.7rem;">No image</div>
+                                }
+                            </td>
+                            <td>
+                                <a asp-page="/Programme" asp-route-pid="@prog.Pid"
+                                   class="text-decoration-none fw-semibold">@prog.Name</a>
+                            </td>
+                            <td class="text-muted">@prog.Episode</td>
+                            <td>@prog.Channel</td>
+                            <td>
+                                <span class="badge @(prog.Type == GetIPlayer.Core.Enums.ProgrammeType.Tv ? "badge-tv" : "badge-radio")">
+                                    @prog.Type
+                                </span>
+                            </td>
+                            <td class="text-muted">
+                                @if (prog.Duration > TimeSpan.Zero)
+                                {
+                                    @prog.Duration.ToString(@"h\:mm\:ss")
+                                }
+                            </td>
+                            <td>
+                                <a asp-page="/Programme" asp-route-pid="@prog.Pid"
+                                   class="btn btn-sm btn-outline-secondary" title="Details">&#8505;</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model.Results.Programmes.Count > 0)
+        {
+            <div class="d-flex justify-content-between align-items-center">
+                <button type="submit" class="btn btn-success">
+                    &#11015; Download Selected
+                </button>
+                <span class="text-muted small">Select programmes and click Download</span>
+            </div>
+        }
+    </form>
+}
+else if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
+{
+    <div class="alert alert-info">
+        No results found for &ldquo;<strong>@Model.SearchTerm</strong>&rdquo;. Try a different search term.
+    </div>
+}
+
+@section Scripts {
+    <script>setupTableFilter('filterInput', 'resultsTable');</script>
+}

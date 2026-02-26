@@ -1,0 +1,133 @@
+@page
+@model SettingsModel
+@{
+    ViewData["Title"] = "Settings";
+}
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @Model.StatusMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<form method="post">
+    <div class="row g-4">
+        <!-- Download Options -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header"><h6 class="mb-0">Download Options</h6></div>
+                <div class="card-body">
+                    <div class="form-check mb-2">
+                        <input type="checkbox" class="form-check-input" id="downloadSubtitles"
+                               name="downloadSubtitles" value="true" @(Model.DownloadSubtitles ? "checked" : "") />
+                        <label class="form-check-label" for="downloadSubtitles">Download subtitles</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input type="checkbox" class="form-check-input" id="downloadThumbnail"
+                               name="downloadThumbnail" value="true" @(Model.DownloadThumbnail ? "checked" : "") />
+                        <label class="form-check-label" for="downloadThumbnail">Download thumbnails</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input type="checkbox" class="form-check-input" id="tagFiles"
+                               name="tagFiles" value="true" @(Model.TagFiles ? "checked" : "") />
+                        <label class="form-check-label" for="tagFiles">Tag files with metadata</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input type="checkbox" class="form-check-input" id="overwriteFiles"
+                               name="overwriteFiles" value="true" @(Model.OverwriteFiles ? "checked" : "") />
+                        <label class="form-check-label" for="overwriteFiles">Overwrite existing files</label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" id="forceDownload"
+                               name="forceDownload" value="true" @(Model.ForceDownload ? "checked" : "") />
+                        <label class="form-check-label" for="forceDownload">Force re-download (ignore history)</label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="maxConcurrentSegments" class="form-label">Max Concurrent Segments</label>
+                        <input type="number" class="form-control" id="maxConcurrentSegments"
+                               name="maxConcurrentSegments" value="@Model.MaxConcurrentSegments" min="1" max="16" />
+                        <div class="form-text">Number of parallel segment downloads (1-16).</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Output Options -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header"><h6 class="mb-0">Output Options</h6></div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="outputDir" class="form-label">Output Directory</label>
+                        <input type="text" class="form-control" id="outputDir" name="outputDir"
+                               value="@Model.OutputDir" placeholder="Default download directory" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="filePrefix" class="form-label">File Name Template</label>
+                        <input type="text" class="form-control" id="filePrefix" name="filePrefix"
+                               value="@Model.FilePrefix" />
+                        <div class="form-text">Tokens: {name}, {episode}, {pid}, {channel}, {type}</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="subDir" class="form-label">Sub-directory Template</label>
+                        <input type="text" class="form-control" id="subDir" name="subDir"
+                               value="@Model.SubDir" placeholder="Leave blank for flat structure" />
+                    </div>
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" id="addVersionToFilename"
+                               name="addVersionToFilename" value="true" @(Model.AddVersionToFilename ? "checked" : "") />
+                        <label class="form-check-label" for="addVersionToFilename">Add version to filename</label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="maxFilenameLength" class="form-label">Max Filename Length</label>
+                        <input type="number" class="form-control" id="maxFilenameLength"
+                               name="maxFilenameLength" value="@Model.MaxFilenameLength" min="50" max="500" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tools & Proxy -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header"><h6 class="mb-0">External Tools</h6></div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="ffmpegPath" class="form-label">FFmpeg Path</label>
+                        <input type="text" class="form-control" id="ffmpegPath" name="ffmpegPath"
+                               value="@Model.FfmpegPath" />
+                    </div>
+                    <div class="mb-0">
+                        <label for="atomicParsleyPath" class="form-label">AtomicParsley Path</label>
+                        <input type="text" class="form-control" id="atomicParsleyPath" name="atomicParsleyPath"
+                               value="@Model.AtomicParsleyPath" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header"><h6 class="mb-0">Proxy Settings</h6></div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="proxyUrl" class="form-label">Proxy URL</label>
+                        <input type="text" class="form-control" id="proxyUrl" name="proxyUrl"
+                               value="@Model.ProxyUrl" placeholder="http://proxy:port" />
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="proxyDisabled"
+                               name="proxyDisabled" value="true" @(Model.ProxyDisabled ? "checked" : "") />
+                        <label class="form-check-label" for="proxyDisabled">Disable proxy</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <button type="submit" class="btn btn-primary">Save Settings</button>
+    </div>
+</form>

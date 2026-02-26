@@ -1,0 +1,109 @@
+@page
+@model GetIPlayer.Web.Pages.Pvr.IndexModel
+@{
+    ViewData["Title"] = "PVR Searches";
+}
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @Model.StatusMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <p class="mb-0 text-muted">
+        <strong>@Model.Searches.Count</strong> saved search(es)
+    </p>
+    <div class="d-flex gap-2">
+        <form method="post" asp-page-handler="RunAll" class="d-inline">
+            <button type="submit" class="btn btn-warning btn-sm"
+                    onclick="return confirm('Run all enabled PVR searches now?')">
+                &#9654; Run All
+            </button>
+        </form>
+        <a asp-page="/Pvr/Add" class="btn btn-primary btn-sm">+ Add Search</a>
+    </div>
+</div>
+
+@if (Model.Searches.Count > 0)
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Search Term</th>
+                    <th>Type</th>
+                    <th>Channel</th>
+                    <th>Subtitles</th>
+                    <th>Status</th>
+                    <th>Last Run</th>
+                    <th style="width: 150px">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var search in Model.Searches)
+                {
+                    <tr class="@(!search.IsEnabled ? "table-secondary" : "")">
+                        <td class="fw-semibold">@search.Name</td>
+                        <td>@search.SearchTerm</td>
+                        <td>
+                            @if (search.Type.HasValue)
+                            {
+                                <span class="badge @(search.Type == GetIPlayer.Core.Enums.ProgrammeType.Tv ? "badge-tv" : "badge-radio")">
+                                    @search.Type
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">All</span>
+                            }
+                        </td>
+                        <td>@(search.ChannelFilter ?? "—")</td>
+                        <td>@(search.DownloadSubtitles ? "Yes" : "No")</td>
+                        <td>
+                            @if (search.IsEnabled)
+                            {
+                                <span class="badge bg-success">Enabled</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Disabled</span>
+                            }
+                        </td>
+                        <td class="text-muted small">
+                            @(search.LastRunAt?.ToLocalTime().ToString("dd MMM yyyy HH:mm") ?? "Never")
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <form method="post" asp-page-handler="Toggle" class="d-inline">
+                                    <input type="hidden" name="name" value="@search.Name" />
+                                    <input type="hidden" name="enabled" value="@(!search.IsEnabled)" />
+                                    <button type="submit" class="btn btn-outline-secondary" title="@(search.IsEnabled ? "Disable" : "Enable")">
+                                        @(search.IsEnabled ? "&#10074;&#10074;" : "&#9654;")
+                                    </button>
+                                </form>
+                                <form method="post" asp-page-handler="Delete" class="d-inline">
+                                    <input type="hidden" name="name" value="@search.Name" />
+                                    <button type="submit" class="btn btn-outline-danger"
+                                            onclick="return confirm('Delete PVR search \'@search.Name\'?')" title="Delete">
+                                        &#128465;
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <p class="text-muted mb-3">No PVR searches configured yet.</p>
+        <a asp-page="/Pvr/Add" class="btn btn-primary">Create your first PVR search</a>
+    </div>
+}

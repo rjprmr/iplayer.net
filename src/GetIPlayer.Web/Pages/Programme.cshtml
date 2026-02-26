@@ -1,0 +1,156 @@
+@page "{pid}"
+@model ProgrammeModel
+@{
+    ViewData["Title"] = Model.Programme?.Name ?? "Programme Details";
+}
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @Model.StatusMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-warning">
+        @Model.ErrorMessage
+        <a asp-page="/Search" class="alert-link">Back to Search</a>
+    </div>
+}
+else if (Model.Programme is not null)
+{
+    var prog = Model.Programme;
+
+    <div class="row g-4">
+        <!-- Programme Info -->
+        <div class="col-md-4">
+            <div class="card">
+                @if (!string.IsNullOrEmpty(prog.ThumbnailUrl))
+                {
+                    <img src="@prog.ThumbnailUrl" class="card-img-top" alt="@prog.Name"
+                         style="max-height: 300px; object-fit: cover;" />
+                }
+                else
+                {
+                    <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center text-white"
+                         style="height: 200px;">No image available</div>
+                }
+                <div class="card-body">
+                    <form method="post" asp-page-handler="Download">
+                        <input type="hidden" name="pid" value="@prog.Pid" />
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" id="subtitles" name="subtitles" value="true" />
+                            <label class="form-check-label" for="subtitles">Include subtitles</label>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">
+                            &#11015; Download
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details -->
+        <div class="col-md-8">
+            <h2 class="mb-1">@prog.Name</h2>
+            @if (!string.IsNullOrEmpty(prog.Episode))
+            {
+                <h5 class="text-muted mb-3">@prog.Episode</h5>
+            }
+
+            <div class="mb-3">
+                <span class="badge @(prog.Type == GetIPlayer.Core.Enums.ProgrammeType.Tv ? "badge-tv" : "badge-radio") me-2">
+                    @prog.Type
+                </span>
+                @if (!string.IsNullOrEmpty(prog.Channel))
+                {
+                    <span class="badge bg-secondary">@prog.Channel</span>
+                }
+            </div>
+
+            @if (!string.IsNullOrEmpty(prog.Description))
+            {
+                <p class="lead">@prog.Description</p>
+            }
+
+            <table class="table table-sm">
+                <tbody>
+                    <tr><th style="width: 160px">PID</th><td><code>@prog.Pid</code></td></tr>
+                    @if (prog.Duration > TimeSpan.Zero)
+                    {
+                        <tr><th>Duration</th><td>@prog.Duration.ToString(@"h\:mm\:ss")</td></tr>
+                    }
+                    @if (prog.FirstBroadcast.HasValue)
+                    {
+                        <tr><th>First Broadcast</th><td>@prog.FirstBroadcast.Value.ToString("dd MMM yyyy HH:mm")</td></tr>
+                    }
+                    @if (prog.AvailableFrom.HasValue)
+                    {
+                        <tr><th>Available From</th><td>@prog.AvailableFrom.Value.ToString("dd MMM yyyy HH:mm")</td></tr>
+                    }
+                    @if (prog.ExpiresAt.HasValue)
+                    {
+                        <tr><th>Expires</th><td>@prog.ExpiresAt.Value.ToString("dd MMM yyyy HH:mm")</td></tr>
+                    }
+                    @if (!string.IsNullOrEmpty(prog.WebUrl))
+                    {
+                        <tr><th>BBC Link</th><td><a href="@prog.WebUrl" target="_blank" rel="noopener noreferrer">@prog.WebUrl</a></td></tr>
+                    }
+                    <tr><th>Index</th><td>@prog.Index</td></tr>
+                    <tr><th>Complete</th><td>@(prog.IsComplete ? "Yes" : "No")</td></tr>
+                </tbody>
+            </table>
+
+            @if (prog.Versions.Count > 0)
+            {
+                <h5 class="mt-4">Available Versions</h5>
+                @foreach (var version in prog.Versions)
+                {
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <strong>@version.Name</strong>
+                            @if (version.Duration > TimeSpan.Zero)
+                            {
+                                <span class="text-muted ms-2">(@version.Duration.ToString(@"h\:mm\:ss"))</span>
+                            }
+                        </div>
+                        @if (version.Streams.Count > 0)
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-sm mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Mode</th>
+                                            <th>Quality</th>
+                                            <th>Protocol</th>
+                                            <th>Bitrate</th>
+                                            <th>Resolution</th>
+                                            <th>Type</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var stream in version.Streams)
+                                        {
+                                            <tr>
+                                                <td><code>@stream.Mode</code></td>
+                                                <td>
+                                                    <span class="badge bg-info text-dark">@stream.Quality</span>
+                                                </td>
+                                                <td>@stream.Protocol</td>
+                                                <td>@(stream.Bitrate > 0 ? $"{stream.Bitrate} kbps" : "—")</td>
+                                                <td>@(stream.Width > 0 ? $"{stream.Width}×{stream.Height}" : "—")</td>
+                                                <td>@stream.MediaType</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                }
+            }
+        </div>
+    </div>
+}

@@ -1,31 +1,103 @@
+/* ===== Base ===== */
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
-
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html { font-size: 16px; }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+/* ===== Sidebar ===== */
+.sidebar {
+    width: 220px;
+    min-height: 100vh;
+    flex-shrink: 0;
+    transition: margin-left 0.2s;
+}
+@media (max-width: 767.98px) {
+    .sidebar {
+        margin-left: -220px;
+        position: fixed;
+        z-index: 1040;
+        height: 100vh;
+    }
+    .sidebar.show { margin-left: 0; }
+}
+.sidebar-link {
+    color: rgba(255,255,255,0.7);
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 2px;
+    font-size: 0.9rem;
+}
+.sidebar-link:hover { color: #fff; background: rgba(255,255,255,0.1); }
+.sidebar-link.active { color: #fff; background: #0d6efd; }
+.sidebar-icon { display: inline-block; width: 1.5em; text-align: center; }
+
+/* ===== Type badges ===== */
+.badge-tv { background-color: #0d6efd; }
+.badge-radio { background-color: #198754; }
+
+/* ===== Programme cards ===== */
+.programme-card { transition: box-shadow 0.15s; }
+.programme-card:hover { box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.12); }
+.programme-card .card-img-top {
+    height: 140px;
+    object-fit: cover;
+    background: #dee2e6;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+/* ===== Progress ===== */
+.download-progress .progress { height: 1.5rem; }
+.download-progress .progress-bar { transition: width 0.3s; }
+
+/* ===== Toast container ===== */
+.toast-container {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 1080;
 }
 
-body {
-  margin-bottom: 60px;
+/* ===== Quick action cards (dashboard) ===== */
+.quick-action {
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.1s;
+}
+.quick-action:hover { transform: translateY(-2px); }
+
+/* ===== Tables ===== */
+.table th { font-weight: 600; font-size: 0.85rem; text-transform: uppercase; color: #6c757d; }
+
+/* ===== Breadcrumbs ===== */
+.breadcrumb-item + .breadcrumb-item::before { color: #6c757d; }
+
+/* ===== Status badges ===== */
+.badge-enabled { background-color: #198754; }
+.badge-disabled { background-color: #6c757d; }
+
+/* ===== Cards ===== */
+.card { border: 1px solid rgba(0,0,0,0.1); }
+.card-header { background-color: #f8f9fa; font-weight: 600; }
+
+/* ===== Form enhancements ===== */
+.form-label { font-weight: 500; font-size: 0.9rem; }
+.form-text { font-size: 0.8rem; }
+
+/* ===== Alerts ===== */
+.alert { border-radius: 0.5rem; }
+
+/* ===== Focus ===== */
+.btn:focus, .form-control:focus, .form-check-input:focus, .form-select:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+/* ===== Code ===== */
+code { font-size: 0.85em; }
+
+/* ===== Focus ===== */
+.btn:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
 }
