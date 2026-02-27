@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="GetIPlayer.Cli.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="../GetIPlayer.Application/GetIPlayer.Application.csproj" />
     <ProjectReference Include="../GetIPlayer.Infrastructure/GetIPlayer.Infrastructure.csproj" />
   </ItemGroup>
