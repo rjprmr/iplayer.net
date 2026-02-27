@@ -1,4 +1,13 @@
 <Solution>
+  <Folder Name="/Documentation/">
+    <File Path="docs/architecture/C1-Context.md" />
+    <File Path="docs/architecture/C2-Container.md" />
+    <File Path="docs/architecture/C3-Component.md" />
+    <File Path="docs/architecture/C4-Code.md" />
+    <File Path="docs/architecture/Data-Flow.md" />
+    <File Path="docs/architecture/README.md" />
+    <File Path="docs/architecture/Technology-Choices.md" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/GetIPlayer.Application.Tests/GetIPlayer.Application.Tests.csproj" />
     <Project Path="tests/GetIPlayer.Cli.Tests/GetIPlayer.Cli.Tests.csproj" />
