@@ -68,6 +68,7 @@ public class UrlBuilderTests
     public void Search_WithQuery_BuildsCorrectUrl()
     {
         var url = UrlBuilder.Search("doctor who", ProgrammeType.Tv, 1, 25);
+        url.Should().StartWith("https://ibl.api.bbc.co.uk/ibl/v1/search");
         url.Should().Contain("q=doctor%20who");
         url.Should().Contain("mediatype=tv");
     }

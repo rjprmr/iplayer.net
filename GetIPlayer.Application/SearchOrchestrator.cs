@@ -25,7 +25,7 @@ public sealed partial class SearchOrchestrator
     }
 
     /// <summary>
-    /// Search for programmes, refreshing cache if stale.
+    /// Search for programmes by calling the BBC search API directly.
     /// </summary>
     public async Task<SearchResult> SearchAsync(
         string searchTerm,
@@ -42,28 +42,12 @@ public sealed partial class SearchOrchestrator
 
         LogSearching(_logger, searchTerm, types.Length);
 
-        // Ensure cache is fresh
-        foreach (var type in types)
-        {
-            if (await _cacheService.IsStaleAsync(type).ConfigureAwait(false))
-            {
-                LogRefreshingCache(_logger, type);
-                await _cacheService.RefreshAsync(type, cancellationToken).ConfigureAwait(false);
-            }
-        }
-
-        // Search across all requested types
         var allMatches = new List<Programme>();
         foreach (var type in types)
         {
-            var cached = await _cacheService.GetAllAsync(type, cancellationToken).ConfigureAwait(false);
-
-            var matches = cached
-                .Where(p => MatchesSearchTerm(p, searchTerm))
-                .Where(p => string.IsNullOrEmpty(channelFilter) ||
-                            p.Channel.Contains(channelFilter, StringComparison.OrdinalIgnoreCase));
-
-            allMatches.AddRange(matches);
+            var result = await _programmeService.SearchAsync(
+                searchTerm, [type], channelFilter, cancellationToken).ConfigureAwait(false);
+            allMatches.AddRange(result.Programmes);
         }
 
         LogSearchResults(_logger, searchTerm, allMatches.Count);

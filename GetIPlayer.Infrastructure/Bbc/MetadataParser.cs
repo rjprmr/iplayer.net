@@ -131,6 +131,75 @@ public sealed partial class MetadataParser
         };
     }
 
+    /// <summary>
+    /// Parse a programme element from BBC ibl search API results.
+    /// Supports both ibl format (id, synopses, master_brand) and programmes format (pid, short_synopsis, ownership).
+    /// </summary>
+    public static Programme? ParseSearchResultElement(JsonElement element, ProgrammeType type)
+    {
+        // ibl uses "id", programmes format uses "pid"
+        var pid = element.GetPropertyOrDefault("id") ?? element.GetPropertyOrDefault("pid");
+        if (string.IsNullOrEmpty(pid))
+        {
+            return null;
+        }
+
+        var title = element.GetPropertyOrDefault("title") ?? string.Empty;
+        var subtitle = element.GetPropertyOrDefault("subtitle")
+                       ?? element.GetNestedPropertyOrDefault("display_title", "subtitle")
+                       ?? string.Empty;
+
+        // ibl uses synopses.small/medium; programmes uses short_synopsis/medium_synopsis
+        var shortSynopsis = element.GetNestedPropertyOrDefault("synopses", "small")
+                            ?? element.GetPropertyOrDefault("short_synopsis")
+                            ?? string.Empty;
+        var mediumSynopsis = element.GetNestedPropertyOrDefault("synopses", "medium")
+                             ?? element.GetPropertyOrDefault("medium_synopsis")
+                             ?? shortSynopsis;
+
+        // ibl uses master_brand.titles.small; programmes uses ownership.service.title
+        var channel = element.GetNestedPropertyOrDefault("master_brand", "titles", "small")
+                      ?? element.GetNestedPropertyOrDefault("ownership", "service", "title")
+                      ?? string.Empty;
+
+        var thumbnailUrl = string.Empty;
+        // ibl format: images.standard with {recipe} placeholder
+        var standardImage = element.GetNestedPropertyOrDefault("images", "standard");
+        if (!string.IsNullOrEmpty(standardImage))
+        {
+            thumbnailUrl = standardImage.Replace("{recipe}", "480x270", StringComparison.Ordinal);
+        }
+        // programmes format: image.pid
+        else if (element.TryGetProperty("image", out var image))
+        {
+            var imagePid = image.GetPropertyOrDefault("pid");
+            if (!string.IsNullOrEmpty(imagePid))
+            {
+                thumbnailUrl = $"https://ichef.bbci.co.uk/images/ic/480x270/{imagePid}.jpg";
+            }
+        }
+
+        var webUrl = string.Empty;
+        if (PidValidator.IsValid(pid))
+        {
+            webUrl = type == ProgrammeType.Tv
+                ? UrlBuilder.IPlayerEpisode(pid)
+                : UrlBuilder.SoundsPlay(pid);
+        }
+
+        return new Programme
+        {
+            Pid = pid,
+            Type = type,
+            Name = title,
+            Episode = subtitle,
+            Description = mediumSynopsis,
+            Channel = channel,
+            ThumbnailUrl = thumbnailUrl,
+            WebUrl = webUrl,
+        };
+    }
+
     [LoggerMessage(Level = LogLevel.Warning, Message = "No 'programme' element in JSON response")]
     private static partial void LogNoProgrammeElement(ILogger logger);
 

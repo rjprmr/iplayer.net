@@ -4,7 +4,6 @@ using GetIPlayer.Application;
 using GetIPlayer.Core.Configuration;
 using GetIPlayer.Core.Interfaces;
 using GetIPlayer.Infrastructure;
-using GetIPlayer.Infrastructure.Http;
 using GetIPlayer.Infrastructure.Persistence;
 using GetIPlayer.Web.Hubs;
 using GetIPlayer.Web.Services;
@@ -55,7 +54,6 @@ builder.Services.AddGetIPlayerServices(settings);
 builder.Services.AddSingleton<IDownloadService, DownloadOrchestrator>();
 builder.Services.AddSingleton<SearchOrchestrator>();
 builder.Services.AddSingleton<PvrOrchestrator>();
-builder.Services.AddSingleton<IHttpClientService, BbcHttpClientService>(); // <- This line was added here
 
 // Web services
 builder.Services.AddSingleton<DownloadTracker>();

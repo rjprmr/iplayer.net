@@ -72,13 +72,13 @@ public static class UrlBuilder
     }
 
     /// <summary>
-    /// Build the BBC iPlayer search API URL.
+    /// Build the BBC iPlayer search API URL (ibl JSON API).
     /// </summary>
     public static string Search(string query, Core.Enums.ProgrammeType type, int page = 1, int pageSize = 25)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(query);
         var safeQuery = Uri.EscapeDataString(query);
         var mediaType = type == Core.Enums.ProgrammeType.Tv ? "tv" : "radio";
-        return $"{BbcBaseUrl}/iplayer/search?q={safeQuery}&mediatype={mediaType}&page={page}&pagesize={pageSize}";
+        return $"https://ibl.api.bbc.co.uk/ibl/v1/search?q={safeQuery}&mediatype={mediaType}&page={page}&pagesize={pageSize}";
     }
 }

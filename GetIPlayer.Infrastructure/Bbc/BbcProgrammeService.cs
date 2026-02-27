@@ -111,12 +111,19 @@ public sealed partial class BbcProgrammeService : IProgrammeService
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
 
-            if (root.TryGetProperty("results", out var results) &&
+            // The ibl API wraps results under a "search" property
+            var searchRoot = root;
+            if (root.TryGetProperty("search", out var searchElement))
+            {
+                searchRoot = searchElement;
+            }
+
+            if (searchRoot.TryGetProperty("results", out var results) &&
                 results.ValueKind == JsonValueKind.Array)
             {
                 foreach (var element in results.EnumerateArray())
                 {
-                    var programme = MetadataParser.ParseProgrammeElement(element, type);
+                    var programme = MetadataParser.ParseSearchResultElement(element, type);
                     if (programme is not null)
                     {
                         programmes.Add(programme);
@@ -124,7 +131,7 @@ public sealed partial class BbcProgrammeService : IProgrammeService
                 }
             }
 
-            if (root.TryGetProperty("count", out var countElem) &&
+            if (searchRoot.TryGetProperty("count", out var countElem) &&
                 countElem.TryGetInt32(out var count))
             {
                 totalCount = count;

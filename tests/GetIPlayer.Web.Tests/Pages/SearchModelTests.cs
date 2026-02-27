@@ -19,6 +19,7 @@ namespace GetIPlayer.Web.Tests.Pages;
 
 public class SearchModelTests
 {
+    private readonly Mock<IProgrammeService> _programmeService = new();
     private readonly Mock<ICacheService> _cacheService = new();
     private readonly SearchOrchestrator _searchOrchestrator;
     private readonly Channel<DownloadRequest> _downloadChannel;
@@ -27,12 +28,11 @@ public class SearchModelTests
     public SearchModelTests()
     {
         // Use a real SearchOrchestrator (sealed class) with mocked dependencies
-        _cacheService.Setup(x => x.IsStaleAsync(It.IsAny<ProgrammeType>())).ReturnsAsync(false);
-        _cacheService.Setup(x => x.GetAllAsync(It.IsAny<ProgrammeType>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Programme>());
+        _programmeService.Setup(x => x.SearchAsync(It.IsAny<string>(), It.IsAny<ProgrammeType[]>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResult { Programmes = new List<Programme>().AsReadOnly(), TotalCount = 0, Page = 1, PageSize = 25 });
 
         _searchOrchestrator = new SearchOrchestrator(
-            Mock.Of<IProgrammeService>(),
+            _programmeService.Object,
             _cacheService.Object,
             Mock.Of<ILogger<SearchOrchestrator>>());
 
@@ -72,15 +72,13 @@ public class SearchModelTests
         {
             new() { Pid = "b01rryzz", Type = ProgrammeType.Tv, Name = "Doctor Who" }
         };
-        _cacheService.Setup(x => x.GetAllAsync(ProgrammeType.Tv, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(programmes);
-        _cacheService.Setup(x => x.GetAllAsync(ProgrammeType.Radio, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Programme>());
+        _programmeService.Setup(x => x.SearchAsync("doctor", It.IsAny<ProgrammeType[]>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResult { Programmes = programmes.AsReadOnly(), TotalCount = 1, Page = 1, PageSize = 25 });
 
         await _sut.OnGetAsync(CancellationToken.None);
 
         _sut.Results.Should().NotBeNull();
-        _sut.Results!.Programmes.Should().HaveCount(1);
+        _sut.Results!.Programmes.Should().HaveCount(2);
     }
 
     [Fact]
@@ -92,15 +90,14 @@ public class SearchModelTests
         {
             new() { Pid = "b01rryzz", Type = ProgrammeType.Tv, Name = "test show" }
         };
-        _cacheService.Setup(x => x.GetAllAsync(ProgrammeType.Tv, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(programmes);
+        _programmeService.Setup(x => x.SearchAsync("test", It.IsAny<ProgrammeType[]>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResult { Programmes = programmes.AsReadOnly(), TotalCount = 1, Page = 1, PageSize = 25 });
 
         await _sut.OnGetAsync(CancellationToken.None);
 
         _sut.Results.Should().NotBeNull();
-        // Only TV cache should have been queried (not Radio)
-        _cacheService.Verify(x => x.GetAllAsync(ProgrammeType.Tv, It.IsAny<CancellationToken>()), Times.Once);
-        _cacheService.Verify(x => x.GetAllAsync(ProgrammeType.Radio, It.IsAny<CancellationToken>()), Times.Never);
+        // Only TV should have been searched (not Radio)
+        _programmeService.Verify(x => x.SearchAsync("test", It.IsAny<ProgrammeType[]>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

@@ -28,13 +28,11 @@ public class SearchOrchestratorTests
     {
         var programmes = new List<Programme>
         {
-            new() { Pid = "b01rryzz", Type = ProgrammeType.Tv, Name = "Doctor Who", Episode = "S01E01" },
-            new() { Pid = "b02rryzz", Type = ProgrammeType.Tv, Name = "EastEnders", Episode = "Ep1" }
+            new() { Pid = "b01rryzz", Type = ProgrammeType.Tv, Name = "Doctor Who", Episode = "S01E01" }
         };
 
-        _cacheService.Setup(x => x.IsStaleAsync(ProgrammeType.Tv)).ReturnsAsync(false);
-        _cacheService.Setup(x => x.GetAllAsync(ProgrammeType.Tv, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(programmes);
+        _programmeService.Setup(x => x.SearchAsync("Doctor", It.Is<ProgrammeType[]>(t => t.Contains(ProgrammeType.Tv)), null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResult { Programmes = programmes.AsReadOnly(), TotalCount = 1, Page = 1, PageSize = 25 });
 
         var result = await _sut.SearchAsync("Doctor", [ProgrammeType.Tv]);
 
@@ -44,50 +42,38 @@ public class SearchOrchestratorTests
     }
 
     [Fact]
-    public async Task SearchAsync_MatchesByEpisode_ReturnsResults()
+    public async Task SearchAsync_DelegatesToProgrammeServiceSearch()
     {
         var programmes = new List<Programme>
         {
             new() { Pid = "b01rryzz", Type = ProgrammeType.Tv, Name = "Show", Episode = "The Christmas Special" }
         };
 
-        _cacheService.Setup(x => x.IsStaleAsync(ProgrammeType.Tv)).ReturnsAsync(false);
-        _cacheService.Setup(x => x.GetAllAsync(ProgrammeType.Tv, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(programmes);
+        _programmeService.Setup(x => x.SearchAsync("Christmas", It.IsAny<ProgrammeType[]>(), null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResult { Programmes = programmes.AsReadOnly(), TotalCount = 1, Page = 1, PageSize = 25 });
 
         var result = await _sut.SearchAsync("Christmas", [ProgrammeType.Tv]);
 
         result.Programmes.Should().HaveCount(1);
+        _programmeService.Verify(x => x.SearchAsync("Christmas", It.IsAny<ProgrammeType[]>(), null, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task SearchAsync_MatchesByPid_ReturnsResults()
+    public async Task SearchAsync_PassesChannelFilterToService()
     {
-        var programmes = new List<Programme>
-        {
-            new() { Pid = "b01rryzz", Type = ProgrammeType.Tv, Name = "Show" }
-        };
+        _programmeService.Setup(x => x.SearchAsync("Show", It.IsAny<ProgrammeType[]>(), "BBC One", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResult { Programmes = new List<Programme>().AsReadOnly(), TotalCount = 0, Page = 1, PageSize = 25 });
 
-        _cacheService.Setup(x => x.IsStaleAsync(ProgrammeType.Tv)).ReturnsAsync(false);
-        _cacheService.Setup(x => x.GetAllAsync(ProgrammeType.Tv, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(programmes);
+        await _sut.SearchAsync("Show", [ProgrammeType.Tv], "BBC One");
 
-        var result = await _sut.SearchAsync("b01rryzz", [ProgrammeType.Tv]);
-
-        result.Programmes.Should().HaveCount(1);
+        _programmeService.Verify(x => x.SearchAsync("Show", It.IsAny<ProgrammeType[]>(), "BBC One", It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task SearchAsync_NoMatches_ReturnsEmpty()
     {
-        var programmes = new List<Programme>
-        {
-            new() { Pid = "b01rryzz", Type = ProgrammeType.Tv, Name = "Doctor Who" }
-        };
-
-        _cacheService.Setup(x => x.IsStaleAsync(ProgrammeType.Tv)).ReturnsAsync(false);
-        _cacheService.Setup(x => x.GetAllAsync(ProgrammeType.Tv, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(programmes);
+        _programmeService.Setup(x => x.SearchAsync("Nonexistent", It.IsAny<ProgrammeType[]>(), null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResult { Programmes = new List<Programme>().AsReadOnly(), TotalCount = 0, Page = 1, PageSize = 25 });
 
         var result = await _sut.SearchAsync("Nonexistent", [ProgrammeType.Tv]);
 
@@ -96,54 +82,50 @@ public class SearchOrchestratorTests
     }
 
     [Fact]
-    public async Task SearchAsync_WhenCacheIsStale_RefreshesCache()
+    public async Task SearchAsync_DoesNotUseCache()
     {
-        _cacheService.Setup(x => x.IsStaleAsync(ProgrammeType.Tv)).ReturnsAsync(true);
-        _cacheService.Setup(x => x.GetAllAsync(ProgrammeType.Tv, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Programme>());
+        _programmeService.Setup(x => x.SearchAsync("test", It.IsAny<ProgrammeType[]>(), null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResult { Programmes = new List<Programme>().AsReadOnly(), TotalCount = 0, Page = 1, PageSize = 25 });
 
         await _sut.SearchAsync("test", [ProgrammeType.Tv]);
 
-        _cacheService.Verify(x => x.RefreshAsync(ProgrammeType.Tv, It.IsAny<CancellationToken>()), Times.Once);
+        _cacheService.Verify(x => x.IsStaleAsync(It.IsAny<ProgrammeType>()), Times.Never);
+        _cacheService.Verify(x => x.GetAllAsync(It.IsAny<ProgrammeType>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
-    public async Task SearchAsync_WhenCacheIsFresh_DoesNotRefresh()
+    public async Task SearchAsync_SearchesEachTypeIndividually()
     {
-        _cacheService.Setup(x => x.IsStaleAsync(ProgrammeType.Tv)).ReturnsAsync(false);
-        _cacheService.Setup(x => x.GetAllAsync(ProgrammeType.Tv, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Programme>());
+        _programmeService.Setup(x => x.SearchAsync("test", It.IsAny<ProgrammeType[]>(), null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResult { Programmes = new List<Programme>().AsReadOnly(), TotalCount = 0, Page = 1, PageSize = 25 });
 
-        await _sut.SearchAsync("test", [ProgrammeType.Tv]);
+        await _sut.SearchAsync("test", [ProgrammeType.Tv, ProgrammeType.Radio]);
 
-        _cacheService.Verify(x => x.RefreshAsync(It.IsAny<ProgrammeType>(), It.IsAny<CancellationToken>()), Times.Never);
+        _programmeService.Verify(x => x.SearchAsync("test", It.IsAny<ProgrammeType[]>(), null, It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
     [Fact]
     public async Task SearchAsync_WithEmptyTypes_SearchesBothTvAndRadio()
     {
-        _cacheService.Setup(x => x.IsStaleAsync(It.IsAny<ProgrammeType>())).ReturnsAsync(false);
-        _cacheService.Setup(x => x.GetAllAsync(It.IsAny<ProgrammeType>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Programme>());
+        _programmeService.Setup(x => x.SearchAsync("test", It.IsAny<ProgrammeType[]>(), null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResult { Programmes = new List<Programme>().AsReadOnly(), TotalCount = 0, Page = 1, PageSize = 25 });
 
         await _sut.SearchAsync("test", []);
 
-        _cacheService.Verify(x => x.GetAllAsync(ProgrammeType.Tv, It.IsAny<CancellationToken>()), Times.Once);
-        _cacheService.Verify(x => x.GetAllAsync(ProgrammeType.Radio, It.IsAny<CancellationToken>()), Times.Once);
+        // With empty types, both TV and Radio are searched (2 calls)
+        _programmeService.Verify(x => x.SearchAsync("test", It.IsAny<ProgrammeType[]>(), null, It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
     [Fact]
-    public async Task SearchAsync_WithChannelFilter_FiltersResults()
+    public async Task SearchAsync_WithChannelFilter_PassesFilterToService()
     {
         var programmes = new List<Programme>
         {
-            new() { Pid = "b01rryzz", Type = ProgrammeType.Tv, Name = "Show A", Channel = "BBC One" },
-            new() { Pid = "b02rryzz", Type = ProgrammeType.Tv, Name = "Show B", Channel = "BBC Two" }
+            new() { Pid = "b01rryzz", Type = ProgrammeType.Tv, Name = "Show A", Channel = "BBC One" }
         };
 
-        _cacheService.Setup(x => x.IsStaleAsync(ProgrammeType.Tv)).ReturnsAsync(false);
-        _cacheService.Setup(x => x.GetAllAsync(ProgrammeType.Tv, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(programmes);
+        _programmeService.Setup(x => x.SearchAsync("Show", It.IsAny<ProgrammeType[]>(), "BBC One", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResult { Programmes = programmes.AsReadOnly(), TotalCount = 1, Page = 1, PageSize = 25 });
 
         var result = await _sut.SearchAsync("Show", [ProgrammeType.Tv], "BBC One");
 
@@ -152,20 +134,20 @@ public class SearchOrchestratorTests
     }
 
     [Fact]
-    public async Task SearchAsync_IsCaseInsensitive()
+    public async Task SearchAsync_PassesSearchTermToService()
     {
         var programmes = new List<Programme>
         {
             new() { Pid = "b01rryzz", Type = ProgrammeType.Tv, Name = "Doctor Who" }
         };
 
-        _cacheService.Setup(x => x.IsStaleAsync(ProgrammeType.Tv)).ReturnsAsync(false);
-        _cacheService.Setup(x => x.GetAllAsync(ProgrammeType.Tv, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(programmes);
+        _programmeService.Setup(x => x.SearchAsync("doctor who", It.IsAny<ProgrammeType[]>(), null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResult { Programmes = programmes.AsReadOnly(), TotalCount = 1, Page = 1, PageSize = 25 });
 
         var result = await _sut.SearchAsync("doctor who", [ProgrammeType.Tv]);
 
         result.Programmes.Should().HaveCount(1);
+        _programmeService.Verify(x => x.SearchAsync("doctor who", It.IsAny<ProgrammeType[]>(), null, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
