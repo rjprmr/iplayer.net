@@ -1,11 +1,4 @@
 <Solution>
-  <Folder Name="/src/">
-    <Project Path="src/GetIPlayer.Application/GetIPlayer.Application.csproj" />
-    <Project Path="src/GetIPlayer.Cli/GetIPlayer.Cli.csproj" />
-    <Project Path="src/GetIPlayer.Core/GetIPlayer.Core.csproj" />
-    <Project Path="src/GetIPlayer.Infrastructure/GetIPlayer.Infrastructure.csproj" />
-    <Project Path="src/GetIPlayer.Web/GetIPlayer.Web.csproj" />
-  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/GetIPlayer.Application.Tests/GetIPlayer.Application.Tests.csproj" />
     <Project Path="tests/GetIPlayer.Cli.Tests/GetIPlayer.Cli.Tests.csproj" />
@@ -13,4 +6,9 @@
     <Project Path="tests/GetIPlayer.Infrastructure.Tests/GetIPlayer.Infrastructure.Tests.csproj" />
     <Project Path="tests/GetIPlayer.Web.Tests/GetIPlayer.Web.Tests.csproj" />
   </Folder>
+  <Project Path="GetIPlayer.Application/GetIPlayer.Application.csproj" />
+  <Project Path="GetIPlayer.Cli/GetIPlayer.Cli.csproj" />
+  <Project Path="GetIPlayer.Core/GetIPlayer.Core.csproj" />
+  <Project Path="GetIPlayer.Infrastructure/GetIPlayer.Infrastructure.csproj" />
+  <Project Path="GetIPlayer.Web/GetIPlayer.Web.csproj" />
 </Solution>

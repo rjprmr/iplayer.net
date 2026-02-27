@@ -28,12 +28,9 @@ services.AddLogging(builder =>
 
 // Load settings (or use defaults)
 var optionsService = new OptionsFileService(
-    new GetIPlayer.Infrastructure.FileSystem.SafeFileSystem(
-        services.BuildServiceProvider().GetRequiredService<ILogger<GetIPlayer.Infrastructure.FileSystem.SafeFileSystem>>()),
+    new GetIPlayer.Infrastructure.FileSystem.SafeFileSystem(services.BuildServiceProvider().GetRequiredService<ILogger<GetIPlayer.Infrastructure.FileSystem.SafeFileSystem>>()),
     services.BuildServiceProvider().GetRequiredService<ILogger<OptionsFileService>>(),
-    Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-        ".get_iplayer", "options.json"));
+    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".get_iplayer", "options.json"));
 
 AppSettings settings;
 try
@@ -71,5 +68,5 @@ rootCommand.Options.Add(verboseOption);
 var profileDirOption = new Option<string?>("--profile-dir") { Description = "Override profile directory", Recursive = true };
 rootCommand.Options.Add(profileDirOption);
 
-var config = new CommandLineConfiguration(rootCommand);
-return await config.InvokeAsync(args);
+var parseResult = rootCommand.Parse(args);
+return await parseResult.InvokeAsync();
