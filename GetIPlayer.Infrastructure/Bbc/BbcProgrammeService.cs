@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using GetIPlayer.Core.Enums;
@@ -92,13 +93,57 @@ public sealed partial class BbcProgrammeService : IProgrammeService
         ProgrammeType type,
         CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.ScheduleJson(type == ProgrammeType.Tv ? "bbc_one" : "bbc_radio_one");
+        var url = UrlBuilder.Channels(type);
         LogFetchingChannels(_logger, type);
 
-        // Return static well-known channel list for reliability
+        try
+        {
+            var json = await _httpClient.GetStringAsync(url, cancellationToken).ConfigureAwait(false);
+            var channels = ParseChannels(json, type);
+            if (channels.Count > 0)
+            {
+                return channels;
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            LogChannelsFetchFailed(_logger, url, ex);
+        }
+        catch (JsonException ex)
+        {
+            LogChannelsParseFailed(_logger, url, ex);
+        }
+
+        // Fall back to static well-known channel list
         return type == ProgrammeType.Tv
             ? GetTvChannels()
             : GetRadioChannels();
+    }
+
+    private static ReadOnlyCollection<ChannelInfo> ParseChannels(string json, ProgrammeType type)
+    {
+        var channels = new List<ChannelInfo>();
+
+        using var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement;
+
+        // The ibl API wraps results under a "channels" property
+        if (root.TryGetProperty("channels", out var channelsArray) &&
+            channelsArray.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var element in channelsArray.EnumerateArray())
+            {
+                var id = element.TryGetProperty("id", out var idProp) ? idProp.GetString() : null;
+                var name = element.TryGetProperty("title", out var titleProp) ? titleProp.GetString() : null;
+
+                if (!string.IsNullOrEmpty(id) && !string.IsNullOrEmpty(name))
+                {
+                    channels.Add(new ChannelInfo { Id = id, Name = name, Type = type });
+                }
+            }
+        }
+
+        return channels.AsReadOnly();
     }
 
     private SearchResult ParseSearchResults(string json, int page, int pageSize, ProgrammeType type)
@@ -197,4 +242,10 @@ public sealed partial class BbcProgrammeService : IProgrammeService
 
     [LoggerMessage(Level = LogLevel.Debug, Message = "Fetching channels for type {Type}")]
     private static partial void LogFetchingChannels(ILogger logger, ProgrammeType type);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to fetch channels from {Url}, falling back to static list")]
+    private static partial void LogChannelsFetchFailed(ILogger logger, string url, Exception ex);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to parse channels response from {Url}, falling back to static list")]
+    private static partial void LogChannelsParseFailed(ILogger logger, string url, Exception ex);
 }

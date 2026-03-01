@@ -81,4 +81,13 @@ public static class UrlBuilder
         var mediaType = type == Core.Enums.ProgrammeType.Tv ? "tv" : "radio";
         return $"https://ibl.api.bbc.co.uk/ibl/v1/search?q={safeQuery}&mediatype={mediaType}&page={page}&pagesize={pageSize}";
     }
+
+    /// <summary>
+    /// Build the BBC ibl channels API URL.
+    /// </summary>
+    public static string Channels(Core.Enums.ProgrammeType type)
+    {
+        var kind = type == Core.Enums.ProgrammeType.Tv ? "tv" : "radio";
+        return $"https://ibl.api.bbc.co.uk/ibl/v1/channels?kind={kind}";
+    }
 }
